@@ -26,11 +26,12 @@ public class Technologytest03ApplicationTests {
 
     @Test
     public void test01() {
-        Message destMessage = new Message("ccw_busi_local", "Tag张三",
-                ("wocao").getBytes());
+        Message destMessage = new Message("ccw_busi_local", "Tag李四",
+                ("神棍").getBytes());
         destMessage.setKey(System.nanoTime() + "");
 //        destMessage.setStartDeliverTime(System.currentTimeMillis() + refundTime);
-        producer.send(destMessage);
+        SendResult result = producer.send(destMessage);
+        System.out.println(result);
     }
 
     @Test
@@ -39,18 +40,17 @@ public class Technologytest03ApplicationTests {
         consumer.subscribe("ccw_busi_local", "*", new MessageListener() {
             @Override
             public Action consume(Message message, ConsumeContext consumeContext) {
-                LOG.info("==开始消费:{}==", this.getClass().getSimpleName());
+                LOG.info("==开始消费:{}==", this.getClass().getName());
                 LOG.info("==消息ID={},消息TAG={}==", message.getMsgID(), message.getTag());
                 LOG.info("====消息Body：{}====", JsonUtils.toJson(new String(message.getBody())));
                 Map<String, String> map = JsonUtils.fromJson(new String(message.getBody()), new TypeToken<Map<String, String>>() {
                 });
-                LOG.info("==参数：{}==",JsonUtils.toJson(map));
-                if(map == null){
+                LOG.info("==参数：{}==", JsonUtils.toJson(map));
+                if (map == null) {
                     //返回ReconsumeLater,消息将重试
                     return Action.ReconsumeLater;
                 }
-//                map.get("");
-                if(message.getTopic().equals("ccw_busi_local")){
+                if (message.getTopic().equals("ccw_busi_local")) {
                     System.out.println("执行消费逻辑。。。");
                 }
                 return null;
@@ -58,10 +58,4 @@ public class Technologytest03ApplicationTests {
         });
     }
 
-    @Test
-    public void test3(){
-        byte[] b= {2,3,4};
-        String str = new String(b);
-
-    }
 }
