@@ -26,12 +26,30 @@ public class Technologytest03ApplicationTests {
 
     @Test
     public void test01() {
-        Message destMessage = new Message("ccw_busi_local", "Tag李四",
-                ("神棍").getBytes());
-        destMessage.setKey(System.nanoTime() + "");
-//        destMessage.setStartDeliverTime(System.currentTimeMillis() + refundTime);
-        SendResult result = producer.send(destMessage);
-        System.out.println(result);
+        //发送消息的代码一定要捕获异常，不然会重复发送。
+        SendResult result = null;
+        try {
+            Message destMessage = new Message("ccw_busi_local", "Tag李四",
+                    ("神棍").getBytes());
+//            key我获取的是纳秒值 你可以随机定义【到时候可以根据日志查询key查到这条消息】
+            destMessage.setKey(System.nanoTime() + "");
+//            startDeliverTime消息投递时间，60000表示一分钟，当前系统时间1分钟后投递这条消息
+            destMessage.setStartDeliverTime(System.currentTimeMillis() + 60000);
+            result = producer.send(destMessage);
+            if (result != null) {
+                LOG.info("send mq message success!");
+            } else {
+                LOG.info("result is null...");
+            }
+        } catch (Exception e) {
+            try {
+                //如果有异常，休眠1秒
+                Thread.sleep(1000);
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -56,6 +74,7 @@ public class Technologytest03ApplicationTests {
                 return null;
             }
         });
+        consumer.start();
     }
 
 }
